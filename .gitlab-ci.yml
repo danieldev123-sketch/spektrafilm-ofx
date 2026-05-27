@@ -1,0 +1,25 @@
+build-windows:
+  tags:
+    - saas-windows-medium-amd64
+  variables:
+    VULKAN_VERSION: "1.3.290.0"
+  before_script:
+    - choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
+    - choco install ninja -y
+    - choco install python -y
+    - refreshenv
+    - pip install numpy scipy colour-science
+    - choco install vulkan-sdk --version=$env:VULKAN_VERSION -y
+    - refreshenv
+    - git clone https://github.com/chaert-s/spektrafilm-ofx OFX/SpektraFilm
+  script:
+    - cd OFX/SpektraFilm
+    - cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+    - cmake --build build --config Release --parallel
+  artifacts:
+    name: spektrafilm-windows-ofx
+    paths:
+      - OFX/SpektraFilm/build/Release/**/*.ofx.bundle
+      - OFX/SpektraFilm/build/**/*.zip
+    expire_in: 2 weeks
+  when: manual
