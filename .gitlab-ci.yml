@@ -6,20 +6,19 @@ build-windows:
   before_script:
     - choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
     - choco install ninja -y
-    - choco install python -y
-    - refreshenv
     - pip install numpy scipy colour-science
     - choco install vulkan-sdk --version=$env:VULKAN_VERSION -y
     - refreshenv
-    - git clone https://github.com/chaert-s/spektrafilm-ofx OFX/SpektraFilm
+    - git clone https://github.com/andreavolpato/spektrafilm spektrafilm-parent
+    - New-Item -ItemType Directory -Force -Path spektrafilm-parent\OFX\SpektraFilm
+    - Get-ChildItem -Exclude spektrafilm-parent | Copy-Item -Destination spektrafilm-parent\OFX\SpektraFilm -Recurse -Force
   script:
-    - cd OFX/SpektraFilm
+    - cd spektrafilm-parent\OFX\SpektraFilm
     - cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
     - cmake --build build --config Release --parallel
   artifacts:
     name: spektrafilm-windows-ofx
     paths:
-      - OFX/SpektraFilm/build/Release/**/*.ofx.bundle
-      - OFX/SpektraFilm/build/**/*.zip
+      - spektrafilm-parent/OFX/SpektraFilm/build/Release/**/*.ofx.bundle
+      - spektrafilm-parent/OFX/SpektraFilm/build/**/*.zip
     expire_in: 2 weeks
-  when: manual
